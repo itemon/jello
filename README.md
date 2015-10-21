@@ -8,19 +8,19 @@
 ## 用法
 
 ```bash
-	// 导入Jello对象, 需要传入express的app实例，路由层router的实例
-	var Jello = require('./jello')(app, router);
-		
-	// 初始化一个服务器接口的通用配置，比如域名和协议等。
-	var proxy = Jello.host('www.baidu.com').protocol('https');
+// 导入Jello对象, 需要传入express的app实例，路由层router的实例
+var Jello = require('./jello')(app, router);
+	
+// 初始化一个服务器接口的通用配置，比如域名和协议等。
+var proxy = Jello.host('www.baidu.com').protocol('https');
 
-	// 由通用配置实例化一个具体的服务器接口，并指定路径 
-	var proxyIndexApi = proxy.api('/home/msg/data/personalcontent');
-	// 实例化一个本地路由配置并映射到服务器的接口实例上
-	Jello.pathname('/index').api().map(proxyIndexApi);
+// 由通用配置实例化一个具体的服务器接口，并指定路径 
+var proxyIndexApi = proxy.api('/home/msg/data/personalcontent');
+// 实例化一个本地路由配置并映射到服务器的接口实例上
+Jello.pathname('/index').api().map(proxyIndexApi);
 
-	// 无api映射，仅仅是展示一个模板
-	Jello.page('/thanks').map();
+// 无api映射，仅仅是展示一个模板
+Jello.page('/thanks').map();
 
 ```
 
@@ -37,10 +37,10 @@ http://apihost/user/{id}
 这是我们可以指定服务端的api的path部分为
 
 ```bash
-	// 由通用配置实例化一个具体的服务器接口，并指定路径 
-	var proxyIndexApi = proxy.api('/user/%id');
-	// 实例化一个本地路由配置并映射到服务器的接口实例上
-	Jello.pathname('/user').api().map(proxyIndexApi);
+// 由通用配置实例化一个具体的服务器接口，并指定路径 
+var proxyIndexApi = proxy.api('/user/%id');
+// 实例化一个本地路由配置并映射到服务器的接口实例上
+Jello.pathname('/user').api().map(proxyIndexApi);
 ```
 
 那么在请求user页面，只要请求的url带上id参数即可动态请求到api层。
