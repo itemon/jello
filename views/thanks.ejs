@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title></title>
+</head>
+<body>
+	<h1>thanks a lot</h1>
+	<h2>version: <%-jello_version%></h2>
+	<h2>mapping_cost: <%-jello_mapping_cost%></h2>
+	<%
+	if (typeof data != 'undefined') {
+	%>
+	<h3>error no: <%-data.errNo%></h3>
+	<%
+	}
+	%>
+</body>
+</html>

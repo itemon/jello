@@ -10,6 +10,8 @@ var app, router;
 var VERSION = '1.0.0beta';
 var NAME = "JELLO";
 
+var JELLO_DEBUG_VIEW_DATA = "data";
+
 /****
  * base class
  */
@@ -227,7 +229,7 @@ HttpRequest.prototype = {
 		}
 		return data;
 	},
-	_doSingleApi: function (req, resp, next, selfMethod, mapping) {
+	_doSingleApi: function (req, resp, next, selfMethod, mapping, tpl) {
 		var url = mapping.toUrlString();
 		var method = mapping.getMethod();
 		var _this = this;
@@ -253,7 +255,8 @@ HttpRequest.prototype = {
 						data.error = -Number.MIN_VALUE;
 						data.msg = err.message;
 					} else {
-						data.error = httpResponse.statusCode >= 200 && httpResponse.statusCode < 300 ? 0 : httpResponse.statusCode;
+						data.error = httpResponse.statusCode >= 200 && httpResponse.statusCode < 300 
+											? 0 : httpResponse.statusCode;
 						try {
 							var proxyData = JSON.parse(body);
 							data.data = proxyData;
@@ -261,7 +264,12 @@ HttpRequest.prototype = {
 							// illegal formatting?
 						}
 						data.statusCode = httpResponse.statusCode;
-						resp.json(data);
+						// consider as tpl rendering providing has tpl setting
+						if (typeof tpl === 'string') {
+							resp.render(tpl, data);
+						} else {
+							resp.json(data);
+						}
 					}
 				});
 				break;
@@ -285,10 +293,30 @@ HttpRequest.prototype = {
 		if (trs.length == 0 && allowNullMapping === false) {
 			throw new Error('you do not have any mapping api in \''+selfUrl+'\', have you forgot something?');
 		}
+		var fastExit = trs.length == 0 && allowNullMapping !== false && typeof tpl === 'string';
+
 		router[selfHttpType](selfUrl, function (req, resp, next) {
+			// 
+			// fast rendering for empty mapping for page request
+			//
+			if (fastExit) {
+				var data = _this._wrap(0, 0);
+				if (req.query.jello === JELLO_DEBUG_VIEW_DATA) {
+					resp.json(data);
+				} else {
+					resp.render(tpl, data);
+				}
+				return;
+			}
+			//
 			// let's do it from first mapping
+			//
 			var mapping = trs[0];
-			_this._doSingleApi(req, resp, next, selfMethod, mapping);
+			if (req.query.jello === JELLO_DEBUG_VIEW_DATA) {
+				_this._doSingleApi(req, resp, next, selfMethod, mapping);
+			} else {
+				_this._doSingleApi(req, resp, next, selfMethod, mapping, tpl);
+			}
 		});
 	}
 }
@@ -300,15 +328,34 @@ var PageHttpRequest = function (proxyConfig) {
 	HttpRequest.call(this, proxyConfig);
 	this._renderFile = null;
 }
+PageHttpRequest.PATTERN_CHAR = /[\\\/-]/gi;
+PageHttpRequest.PATTERN_TRIM = /(^[\\\/]+|[\\\/]+$)/gi;
 PageHttpRequest.prototype = {
 	__proto__: HttpRequest.prototype,
 	render: function (file) {
+		this._renderFile = file;
 		return this;
 	},
+	_usingDefaultTpl: function () {
+		var pathname = this._httpConf.pathname;
+		// trim slash both end
+		pathname = pathname.replace(PageHttpRequest.PATTERN_TRIM, "");
+		// translate unfriendly char
+		return pathname.replace(PageHttpRequest.PATTERN_CHAR, '_');
+	},
 	map: function (/*arg1, arg2, arg3, arg4*/httpRequest) {
+		this._checkLocal();
+
 		var args = Array.prototype.slice.call(arguments, 0);
 		var reqs = this._checkMapRequest(args);
 		this._targetRequests = reqs;
+
+		var tpl = this._renderFile;
+		if (typeof tpl !== 'string') {
+			tpl = this._usingDefaultTpl();
+		}
+
+		this._doApi(true, tpl);
 		return this;
 	}
 }
@@ -328,7 +375,7 @@ ApiHttpRequest.prototype = {
 		var reqs = this._checkMapRequest(args);
 		this._targetRequests = reqs;
 
-		this._doApi();
+		this._doApi(false);
 		return this;
 	},
 }
