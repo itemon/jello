@@ -25,7 +25,7 @@ JelloBase.METHOD_GET = 0;
 JelloBase.METHOD_POST = 1;
 JelloBase.METHOD_PUT = 2;
 
-JelloBase.PATTERN_PATH = /^[\w_\/]+$/gi;
+JelloBase.PATTERN_PATH = /^[\w_\/%]+$/gi;
 JelloBase.prototype = {
 	host: function (host) {
 		if (typeof host !== 'undefined') {
@@ -229,9 +229,49 @@ HttpRequest.prototype = {
 		}
 		return data;
 	},
+	_fastCopy: function (obj) {
+		var clone = Object.create(null);
+		for (var p in obj) {
+			if (obj.hasOwnProperty(p)) {
+				clone[p] = obj[p];
+			}
+		}
+		return clone;
+	},
+	/**
+	 * @req http original request object
+	 * @mapping the single mapping of this request
+	 * it works like this, the mapping url of this request 
+	 * could be determinte daynamically based on the provided query arguments
+	 * if the mapping url you provided is like '/hello/%world', the path of the api or page is '/local/'
+	 * when you request the original page or api instance, you need to provide a query
+	 * with name 'world', as /local/?world=123
+	 */
+	_handleQuerySupersede: function (req, mapping) {
+		var pathname = mapping._httpConf.pathname;
+		if (pathname.indexOf('%') != -1) {
+			var copyOfConf = this._fastCopy(mapping._httpConf);
+			pathname = copyOfConf.pathname;
+			var querys = req.query;
+			for (var q in querys) {
+				if (querys.hasOwnProperty(q)) {
+					var itemValue = querys[q];
+					var regexp = new RegExp('%'+q);
+					pathname = pathname.replace(regexp, itemValue);
+				}
+			}
+			// update pathname
+			copyOfConf.pathname = pathname;
+			//console.log('in supersede mode, final url is %s', urler.format(copyOfConf));
+			return urler.format(copyOfConf);
+		} else {
+			return mapping.toUrlString();
+		}
+	},
 	_doSingleApi: function (req, resp, next, selfMethod, mapping, tpl) {
-		var url = mapping.toUrlString();
 		var method = mapping.getMethod();
+		//var url = mapping.toUrlString();
+		var url = this._handleQuerySupersede(req, mapping);
 		var _this = this;
 
 		switch (method) {

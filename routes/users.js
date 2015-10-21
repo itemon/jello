@@ -22,6 +22,10 @@ var proxy = function (app) {
 	local = Jello.page('/3q').render('thanks').map(proxyIndexApi);
 	console.log(local.toUrlString(), '<--->', proxyIndexApi.toUrlString());
 
+	var proxySuperApi = proxy.api('/home/msg/data/%type');
+	local = Jello.api('/hello').map(proxySuperApi);
+	console.log(local.toUrlString(), '<--->', proxySuperApi.toUrlString());
+
 	//console.log(router);
 
 	return router;
