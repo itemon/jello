@@ -348,10 +348,10 @@ HttpRequest.prototype = {
 				});
 				break;
 			default:
-				resp.json({
-					error: Number.MIN_VALUE,
-					msg: 'no method supplied matched',
-				});
+				var data = this._wrap(0, 0);
+				data.error = Number.MIN_VALUE;
+				data.msg = 'no method supplied matched';
+				resp.json(data);
 				break;
 		}
 	},
