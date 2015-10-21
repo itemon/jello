@@ -33,6 +33,13 @@ JelloBase.prototype = {
 		}
 		return this;
 	},
+	query: function (query) {
+		var toString = Object.prototype.toString;
+		if (toString.call(query) == '[object Object]') {
+			this._httpConf.query = query;
+		}
+		return this;
+       },
 	getMethod: function () {
 		return this._method;
 	},
@@ -116,6 +123,9 @@ Jello.protocol = function (protocol) {
 Jello.pathname = function (pathname) {
 	return Jello._handleCall(this, 'pathname', pathname);
 }
+Jello.query = function (query) {
+	return Jello._handleCall(this, 'query', query);
+}
 Jello.get = function () {
 	return Jello._handleCall(this, 'get');
 }
@@ -183,15 +193,22 @@ var HttpRequest = function (proxyConfig) {
 	}
 	this._targetRequests = null;
 	this._app = null;
+	this._acceptCookie = false;
 }
 HttpRequest.prototype = {
 	__proto__: JelloBase.prototype,
 	fromConfig: function (conf) {
+		/*
 		for (var i in conf) {
 			if (conf.hasOwnProperty(i)) {
 				this._httpConf[i] = conf[i];
 			}
 		}
+		*/
+		this._httpConf = this._fastCopy(conf);
+	},
+	cookie: function (accept) {
+		this._acceptCookie = accept;
 	},
 	map: function (/*arg1, arg2, arg3, arg4*/request) {
 		// do you really want to call this?
@@ -230,10 +247,18 @@ HttpRequest.prototype = {
 		return data;
 	},
 	_fastCopy: function (obj) {
-		var clone = Object.create(null);
+		//var clone = Object.create(null);
+		var clone = {};
+		var toString = Object.prototype.toString;
 		for (var p in obj) {
 			if (obj.hasOwnProperty(p)) {
-				clone[p] = obj[p];
+				var fromValue = obj[p];
+				// deep copy
+				if (toString.call(fromValue) == '[object Object]') {
+					clone[p] = this._fastCopy(fromValue);
+				} else {
+					clone[p] = fromValue;
+				}
 			}
 		}
 		return clone;
@@ -278,6 +303,7 @@ HttpRequest.prototype = {
 			case JelloBase.METHOD_GET:
 			case JelloBase.METHOD_POST:
 				var _start = new Date().getTime();
+				console.log('request %s', url);
 				var carryData = {
 					url: url,
 					headers: {
@@ -304,6 +330,14 @@ HttpRequest.prototype = {
 							// illegal formatting?
 						}
 						data.statusCode = httpResponse.statusCode;
+						// write cookie back
+						// do accept cookie only allowed
+						if (mapping._acceptCookie === true) {
+							var cookie = httpResponse.headers['set-cookie'];
+							if (typeof cookie != 'undefined') {
+								res.setHeader('Set-Cookie', cookie);
+							}
+						}
 						// consider as tpl rendering providing has tpl setting
 						if (typeof tpl === 'string') {
 							resp.render(tpl, data);
