@@ -13,18 +13,18 @@ var NAME = "JELLO";
 /****
  * base class
  */
-var ProxyConfigBase = function () {
+var JelloBase = function () {
 	this._httpConf = {};
-	this._method = ProxyConfigBase.METHOD_GET;
+	this._method = JelloBase.METHOD_GET;
 	this._usingJsonFormat = true;
 };
 
-ProxyConfigBase.METHOD_GET = 0;
-ProxyConfigBase.METHOD_POST = 1;
-ProxyConfigBase.METHOD_PUT = 2;
+JelloBase.METHOD_GET = 0;
+JelloBase.METHOD_POST = 1;
+JelloBase.METHOD_PUT = 2;
 
-ProxyConfigBase.PATTERN_PATH = /^[\w_\/]+$/gi;
-ProxyConfigBase.prototype = {
+JelloBase.PATTERN_PATH = /^[\w_\/]+$/gi;
+JelloBase.prototype = {
 	host: function (host) {
 		if (typeof host !== 'undefined') {
 			this._httpConf.host = host;
@@ -41,20 +41,20 @@ ProxyConfigBase.prototype = {
 		return this;
 	},
 	get: function () {
-		this._method = ProxyConfigBase.METHOD_GET;
+		this._method = JelloBase.METHOD_GET;
 		return this;
 	},
 	post: function () {
-		this._method = ProxyConfigBase.METHOD_POST;
+		this._method = JelloBase.METHOD_POST;
 		return this;
 	},
 	put: function () {
-		this._method = ProxyConfigBase.METHOD_PUT;
+		this._method = JelloBase.METHOD_PUT;
 		return this;
 	},
 	pathname: function (pathname) {
 		if (typeof pathname !== 'undefined') {
-			var pattern = ProxyConfigBase.PATTERN_PATH;
+			var pattern = JelloBase.PATTERN_PATH;
 			pattern.lastIndex = 0;
 			if (!pattern.test(pathname)) {
 				throw new TypeError('pathname format error, only \'0-9, a-z, A-Z, _\' allowed');
@@ -77,13 +77,13 @@ ProxyConfigBase.prototype = {
 
 
 /**
- * ProxyConfig is an http url config object representing all http component
+ * Jello is an http url config object representing all http component
  * it can factorying an http request instance
  */
-var ProxyConfig = function () {
-	ProxyConfigBase.call(this);
+var Jello = function () {
+	JelloBase.call(this);
 }
-ProxyConfig._handleCall = function (/**host, arg1, arg2**/) {
+Jello._handleCall = function (/**host, arg1, arg2**/) {
 	var args = Array.prototype.slice.call(arguments, 0);
 	if (args.length < 2) {
 		throw new Error('have you forgot to pass in host argument?');
@@ -92,45 +92,45 @@ ProxyConfig._handleCall = function (/**host, arg1, arg2**/) {
 	var method = args[1];
 	var otherArgs = args.slice(2);
 
-	var proto = ProxyConfigBase.prototype[method];
+	var proto = JelloBase.prototype[method];
 	//if (typeof proto == 'undefined')
-	//	proto = ProxyConfig.prototype[method];
+	//	proto = Jello.prototype[method];
 
-	if (host instanceof ProxyConfig) {
+	if (host instanceof Jello) {
 		proto.apply(host, otherArgs);
 		return this;
 	} else {
-		var instance = new ProxyConfig();
+		var instance = new Jello();
 		proto.apply(instance, otherArgs);
 		return instance;
 	}
 }
-ProxyConfig.host = function (host) {
-	return ProxyConfig._handleCall(this, 'host', host);
+Jello.host = function (host) {
+	return Jello._handleCall(this, 'host', host);
 }
-ProxyConfig.protocol = function (protocol) {
-	return ProxyConfig._handleCall(this, 'protocol', protocol);
+Jello.protocol = function (protocol) {
+	return Jello._handleCall(this, 'protocol', protocol);
 }
-ProxyConfig.pathname = function (pathname) {
-	return ProxyConfig._handleCall(this, 'pathname', pathname);
+Jello.pathname = function (pathname) {
+	return Jello._handleCall(this, 'pathname', pathname);
 }
-ProxyConfig.get = function () {
-	return ProxyConfig._handleCall(this, 'get');
+Jello.get = function () {
+	return Jello._handleCall(this, 'get');
 }
-ProxyConfig.post = function () {
-	return ProxyConfig._handleCall(this, 'post');
+Jello.post = function () {
+	return Jello._handleCall(this, 'post');
 }
-ProxyConfig.put = function () {
-	return ProxyConfig._handleCall(this, 'put');
+Jello.put = function () {
+	return Jello._handleCall(this, 'put');
 }
-ProxyConfig.json = function (json) {
-	return ProxyConfig._handleCall(this, 'json', json);
+Jello.json = function (json) {
+	return Jello._handleCall(this, 'json', json);
 }
 
 /****
  * fast creation method
  */
-ProxyConfig._handleCallEx = function (/*arg1, arg2, arg3*/) {
+Jello._handleCallEx = function (/*arg1, arg2, arg3*/) {
 	var args = Array.prototype.slice.call(arguments, 0);
 	if (args.length < 2) {
 		throw new Error('have you forgot to pass in host argument?');
@@ -139,18 +139,18 @@ ProxyConfig._handleCallEx = function (/*arg1, arg2, arg3*/) {
 	var method = args[1];
 	var otherArgs = args.slice(2);
 
-	var proto = ProxyConfig.prototype[method];
+	var proto = Jello.prototype[method];
 	return proto.apply(host, otherArgs);
 }
-ProxyConfig.api = function (path) {
-	return ProxyConfig._handleCallEx(this, 'api', path);
+Jello.api = function (path) {
+	return Jello._handleCallEx(this, 'api', path);
 }
-ProxyConfig.page = function (path) {
-	return ProxyConfig._handleCallEx(this, 'page', path);
+Jello.page = function (path) {
+	return Jello._handleCallEx(this, 'page', path);
 }
 
-ProxyConfig.prototype = {
-	__proto__: ProxyConfigBase.prototype,
+Jello.prototype = {
+	__proto__: JelloBase.prototype,
 	api: function (path) {
 		var apiRequest = new ApiHttpRequest(this);
 		if (typeof path === 'string') {
@@ -171,8 +171,8 @@ ProxyConfig.prototype = {
  *base http request
  */
 var HttpRequest = function (proxyConfig) {
-	ProxyConfigBase.call(this);
-	if (proxyConfig instanceof ProxyConfigBase) {
+	JelloBase.call(this);
+	if (proxyConfig instanceof JelloBase) {
 		// copy main config
 		this.fromConfig(proxyConfig.getConf());
 		// copy method and other conf
@@ -183,7 +183,7 @@ var HttpRequest = function (proxyConfig) {
 	this._app = null;
 }
 HttpRequest.prototype = {
-	__proto__: ProxyConfigBase.prototype,
+	__proto__: JelloBase.prototype,
 	fromConfig: function (conf) {
 		for (var i in conf) {
 			if (conf.hasOwnProperty(i)) {
@@ -233,8 +233,8 @@ HttpRequest.prototype = {
 		var _this = this;
 
 		switch (method) {
-			case ProxyConfigBase.METHOD_GET:
-			case ProxyConfigBase.METHOD_POST:
+			case JelloBase.METHOD_GET:
+			case JelloBase.METHOD_POST:
 				var _start = new Date().getTime();
 				var carryData = {
 					url: url,
@@ -243,10 +243,10 @@ HttpRequest.prototype = {
 					}
 				}
 				// bring post data provide in post request and mapping request in post mode
-				if (method == ProxyConfigBase.METHOD_POST && selfMethod == ProxyConfigBase.METHOD_POST) {
+				if (method == JelloBase.METHOD_POST && selfMethod == JelloBase.METHOD_POST) {
 					carryData.data = req.body;
 				}
-				var httpType = method == ProxyConfigBase.METHOD_GET ? 'get' : 'post';
+				var httpType = method == JelloBase.METHOD_GET ? 'get' : 'post';
 				request[httpType](carryData, function(err, httpResponse, body) {
 					var data = _this._wrap(_start, new Date().getTime());
 					if (err) {
@@ -277,7 +277,7 @@ HttpRequest.prototype = {
 		var _this = this;
 		// translate to string http type
 		var selfMethod = this._method;
-		var selfHttpType = selfMethod == ProxyConfigBase.METHOD_GET ? 'get' : 'post';
+		var selfHttpType = selfMethod == JelloBase.METHOD_GET ? 'get' : 'post';
 		var selfUrl = this.toUrlString();
 
 		// handle as routering
@@ -341,7 +341,7 @@ var injecter = function (applicationInstance, routerInstance) {
 		app = applicationInstance;
 		router = routerInstance;
 	//}
-	return ProxyConfig;
+	return Jello;
 }
 
 exports = module.exports = injecter;
