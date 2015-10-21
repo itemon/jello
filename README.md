@@ -19,4 +19,31 @@
 	// 实例化一个本地路由配置并映射到服务器的接口实例上
 	Jello.pathname('/index').api().map(proxyIndexApi);
 
+	// 无api映射，仅仅是展示一个模板
+	Jello.page('/thanks').map();
+
+```
+
+## 更多设置
+
+### 服务端api接口动态替换
+例如服务器端接口是经过优化过的对搜索引擎友好的形式，比如请求一个用户的id信息的接口，它的path部分如下
+
+```bash
+http://apihost/user/{id}
+```
+
+其中id的部分是动态指定的，为了将此种类型的接口作为我们的api层接口，需要动态的生成具体的请求api，这就需要动态的根据query来生成。
+这是我们可以指定服务端的api的path部分为
+
+```bash
+	// 由通用配置实例化一个具体的服务器接口，并指定路径 
+	var proxyIndexApi = proxy.api('/user/%id');
+	// 实例化一个本地路由配置并映射到服务器的接口实例上
+	Jello.pathname('/user').api().map(proxyIndexApi);
+```
+
+那么在请求user页面，只要请求的url带上id参数即可动态请求到api层。
+```bash
+http://host/user/?id=1
 ```
