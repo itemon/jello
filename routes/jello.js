@@ -335,7 +335,7 @@ HttpRequest.prototype = {
 						if (mapping._acceptCookie === true) {
 							var cookie = httpResponse.headers['set-cookie'];
 							if (typeof cookie != 'undefined') {
-								res.setHeader('Set-Cookie', cookie);
+								resp.setHeader('Set-Cookie', cookie);
 							}
 						}
 						// consider as tpl rendering providing has tpl setting
