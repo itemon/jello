@@ -14,4 +14,9 @@
 	// 初始化一个服务器接口的通用配置，比如域名和协议等。
 	var proxy = Jello.host('www.baidu.com').protocol('https');
 
+	// 由通用配置实例化一个具体的服务器接口，并指定路径 
+	var proxyIndexApi = proxy.api('/home/msg/data/personalcontent');
+	// 实例化一个本地路由配置并映射到服务器的接口实例上
+	Jello.pathname('/index').api().map(proxyIndexApi);
+
 ```
