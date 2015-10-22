@@ -43,6 +43,8 @@ var proxyIndexApi = proxy.api('/user/%id');
 Jello.pathname('/user').api().map(proxyIndexApi);
 ```
 
+其中query的参数名字一定要与path部分百分号后的字符组合匹配
+
 那么在请求user页面，只要请求的url带上id参数即可动态请求到api层。
 ```bash
 http://host/user/?id=1
