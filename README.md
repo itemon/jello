@@ -73,7 +73,6 @@ var proxyIndexApi = proxy.api('/some/api/of/server').cookie(true);
 api层的数据返回，jello会作一层数据整合，如多接口mapping声明。
 
 ![本地模板变量数据格式](demo.png)
-
 其中：
 
 * jello_version和jello_name分别是名字和版本声明
