@@ -81,3 +81,6 @@ api层的数据返回，jello会作一层数据整合，如多接口mapping声�
 * error 是作为此次请求是否成功的参考，如果http状态码在[200, 300)之间，则被认为是正常error返回0，其他情况非0.
 * data 字段下是api层接口原始返回数据。
 * statusCode 是api层原始请求状态码。
+
+### HOW TO USE IT
+整合```routes```目录下得```jello.js```到你的express项目的```routes```目录下，require导入其即可。例如实例项目的```routes/users.js```
