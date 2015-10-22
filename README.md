@@ -47,3 +47,11 @@ Jello.pathname('/user').api().map(proxyIndexApi);
 ```bash
 http://host/user/?id=1
 ```
+### 打开api cookie回写功能
+
+很多情况下，前后端分离之后仍然在同一个域名之下，逻辑上是一个整体；因此本地页面或者接口所映射的api层会回写业务cookie给浏览器，由于采用的分离式的开发方法，
+此时api层的回写必须手动开启才能工作，流程是api层回写给nodejs层，nodejs层回写给用户浏览器。
+
+```bash
+var proxyIndexApi = proxy.api('/some/api/of/server').___cookie(true)___;
+```
