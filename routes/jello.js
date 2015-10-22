@@ -194,6 +194,7 @@ var HttpRequest = function (proxyConfig) {
 	this._targetRequests = null;
 	this._app = null;
 	this._acceptCookie = false;
+	this._muteQueryHanding = false;
 }
 HttpRequest.prototype = {
 	__proto__: JelloBase.prototype,
@@ -206,6 +207,9 @@ HttpRequest.prototype = {
 		}
 		*/
 		this._httpConf = this._fastCopy(conf);
+	},
+	muteQueryHanding: function (mute) {
+		this._muteQueryHanding = mute;
 	},
 	cookie: function (accept) {
 		this._acceptCookie = accept;
@@ -293,10 +297,15 @@ HttpRequest.prototype = {
 			// update pathname
 			copyOfConf.pathname = pathname;
 			// update query
-			copyOfConf.query = newQuery;
+			if (mapping._muteQueryHanding !== true) {
+				copyOfConf.query = newQuery;
+			}
 			//console.log('in supersede mode, final url is %s', urler.format(copyOfConf));
 			return urler.format(copyOfConf);
 		} else {
+			if (mapping._muteQueryHanding === true) {
+				return mapping.toUrlString();
+			}
 			for (var q in querys) {
 				if (querys.hasOwnProperty(q)) {
 					// handle query supersede
