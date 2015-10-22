@@ -274,23 +274,39 @@ HttpRequest.prototype = {
 	 */
 	_handleQuerySupersede: function (req, mapping) {
 		var pathname = mapping._httpConf.pathname;
+		var copyOfConf = this._fastCopy(mapping._httpConf);
+		var querys = req.query;
+		var newQuery = typeof copyOfConf.query != 'undefined' ? copyOfConf.query : {};
+
 		if (pathname.indexOf('%') != -1) {
-			var copyOfConf = this._fastCopy(mapping._httpConf);
 			pathname = copyOfConf.pathname;
-			var querys = req.query;
 			for (var q in querys) {
 				if (querys.hasOwnProperty(q)) {
+					// handle path replacement
 					var itemValue = querys[q];
 					var regexp = new RegExp('%'+q);
 					pathname = pathname.replace(regexp, itemValue);
+					// handle query supersede
+					newQuery[q] = querys[q];
 				}
 			}
 			// update pathname
 			copyOfConf.pathname = pathname;
+			// update query
+			copyOfConf.query = newQuery;
 			//console.log('in supersede mode, final url is %s', urler.format(copyOfConf));
 			return urler.format(copyOfConf);
 		} else {
-			return mapping.toUrlString();
+			for (var q in querys) {
+				if (querys.hasOwnProperty(q)) {
+					// handle query supersede
+					newQuery[q] = querys[q];
+				}
+			}
+			// update query
+			copyOfConf.query = newQuery;
+			//return mapping.toUrlString();
+			return urler.format(copyOfConf);
 		}
 	},
 	_doSingleApi: function (req, resp, next, selfMethod, mapping, tpl) {
@@ -303,7 +319,7 @@ HttpRequest.prototype = {
 			case JelloBase.METHOD_GET:
 			case JelloBase.METHOD_POST:
 				var _start = new Date().getTime();
-				console.log('request %s', url);
+				console.log('final url of request %s', url);
 				var carryData = {
 					url: url,
 					headers: {
