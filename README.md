@@ -71,6 +71,7 @@ var proxyIndexApi = proxy.api('/some/api/of/server').cookie(true);
 ### 作为本地页面模板变量,对api层数据层的封装
 
 api层的数据返回，jello会作一层数据整合，如多接口mapping声明。
+
 ![本地模板变量数据格式](demo.png)
 
 其中：
