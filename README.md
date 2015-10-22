@@ -43,12 +43,13 @@ var proxyIndexApi = proxy.api('/user/%id');
 Jello.pathname('/user').api().map(proxyIndexApi);
 ```
 
-其中query的参数名字一定要与path部分百分号后的字符组合匹配
-
 那么在请求user页面，只要请求的url带上id参数即可动态请求到api层。
 ```bash
 http://host/user/?id=1
 ```
+
+其中query的参数名字一定要与path部分百分号后的字符组合匹配
+
 ### 打开api cookie回写功能
 
 很多情况下，前后端分离之后仍然在同一个域名之下，逻辑上是一个整体；因此本地页面或者接口所映射的api层会回写业务cookie给浏览器，由于采用的分离式的开发方法，
