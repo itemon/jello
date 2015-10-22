@@ -53,5 +53,5 @@ http://host/user/?id=1
 此时api层的回写必须手动开启才能工作，流程是api层回写给nodejs层，nodejs层回写给用户浏览器。
 
 ```bash
-var proxyIndexApi = proxy.api('/some/api/of/server').___cookie(true)___;
+var proxyIndexApi = proxy.api('/some/api/of/server').__cookie(true)__;
 ```
