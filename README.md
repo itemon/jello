@@ -58,3 +58,12 @@ http://host/user/?id=1
 ```bash
 var proxyIndexApi = proxy.api('/some/api/of/server').cookie(true);
 ```
+
+### 设置模板相关
+
+对于本地页面，可以为其动态指定模板的名字，此名字可以包含路径和文件名。
+
+	Jello.page('/thanks').render('tpl_name').map();
+
+你也可以省略render调用，jello会自动生成模板名字，策略是讲render调用传入的参数转换为一个模板名，将其中的正反斜线、连接符转换为下划线，去掉头尾的正反斜线。
+例如```/a/b/c/```转换为a_b_c，查找目录从express声明的模板根目录开始。
