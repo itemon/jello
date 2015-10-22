@@ -69,4 +69,14 @@ var proxyIndexApi = proxy.api('/some/api/of/server').cookie(true);
 例如```/a/b/c/```转换为a_b_c，查找目录从express声明的模板根目录开始。
 
 ### 作为本地页面模板变量,对api层数据层的封装
+
+api层的数据返回，jello会作一层数据整合，如多接口mapping声明。
 ![本地模板变量数据格式](demo.png)
+
+其中：
+
+* jello_version和jello_name分别是名字和版本声明
+* jello_mapping_cost是api层调用时间统计(http请求时间)。
+* error 是作为此次请求是否成功的参考，如果http状态码在[200, 300)之间，则被认为是正常error返回0，其他情况非0.
+* data 字段下是api层接口原始返回数据。
+* statusCode 是api层原始请求状态码。
